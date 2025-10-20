@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'profile_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -16,6 +17,7 @@ class _MainPageState extends State<MainPage> {
     const Center(child: Text("Approvals")),
     const Center(child: Text("Leave")),
     const Center(child: Text("Payroll")),
+    const ProfilePage(),
   ];
 
   @override
@@ -81,6 +83,8 @@ class _MainPageState extends State<MainPage> {
               },
             ),
             const Divider(),
+
+
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text("Logout"),
@@ -109,6 +113,7 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(icon: Icon(Icons.verified), label: "Approvals"),
           BottomNavigationBarItem(icon: Icon(Icons.beach_access), label: "Leave"),
           BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Payroll"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );
