@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
+import 'attendance_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -13,7 +14,7 @@ class _MainPageState extends State<MainPage> {
 
   final _pages = [
     const Center(child: Text("Dashboard")),
-    const Center(child: Text("Clock In/Out")),
+    const Center(child: ClockInPage()),
     const Center(child: Text("Approvals")),
     const Center(child: Text("Leave")),
     const Center(child: Text("Payroll")),

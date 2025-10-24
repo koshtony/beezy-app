@@ -12,7 +12,7 @@ class ProfileService {
     if (token == null) throw Exception("Not logged in");
 
     final response = await http.get(
-      Uri.parse('$baseUrl/users/profile/'),
+      Uri.parse('$baseUrl/users/employees/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

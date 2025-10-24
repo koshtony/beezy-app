@@ -13,7 +13,7 @@ class HRApp extends StatelessWidget {
     return MaterialApp(
       title: "HR Management",
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.lightGreen,
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
