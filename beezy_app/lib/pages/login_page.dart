@@ -41,71 +41,89 @@ class _LoginPageState extends State<LoginPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Forgot password tapped")),
     );
-    // TODO: Navigate to Forgot Password screen or handle logic
   }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = const Color.fromARGB(255, 191, 176, 129); // Bee Gold
+    final accentColor = const Color(0xFF0D47A1); // Deep Bee Blue
+    final background = const Color(0xFFFFF8E1); // Honey white
+
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
+      backgroundColor: background,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ✅ App Logo / Icon
+              // 🐝 Bee Icon (use emoji or your own logo asset)
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.1),
+                  gradient: LinearGradient(
+                    colors: [primaryColor, accentColor.withOpacity(0.9)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withOpacity(0.25),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.verified_user_rounded,
-                  color: Color.fromARGB(255, 8, 218, 85),
-                  size: 60,
+                child: const Text(
+                  "🐝",
+                  style: TextStyle(fontSize: 50),
                 ),
               ),
               const SizedBox(height: 20),
 
               const Text(
-                "🐝Beezy App",
+                "Beezy HRM",
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0D47A1),
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                "Sign in to continue to your dashboard",
+              const Text(
+                "Smart HR Management System",
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[700],
+                  color: Color(0xFF5F6368),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 40),
 
-              // ✅ Modern Card Container
+              // 🧾 Login Card
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                elevation: 6,
-                shadowColor: Colors.blueAccent.withOpacity(0.2),
+                elevation: 8,
+                shadowColor: Colors.amber.withOpacity(0.3),
+                color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Username Field
+                        // Username
                         TextFormField(
                           controller: _usernameController,
                           decoration: InputDecoration(
                             labelText: "Username",
-                            prefixIcon: const Icon(Icons.person_outline),
+                            prefixIcon: Icon(Icons.person_outline,
+                                color: accentColor),
+                            filled: true,
+                            fillColor: Colors.amber.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
@@ -115,13 +133,16 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Password Field
+                        // Password
                         TextFormField(
                           controller: _passwordController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: "Password",
-                            prefixIcon: const Icon(Icons.lock_outline),
+                            prefixIcon:
+                                Icon(Icons.lock_outline, color: accentColor),
+                            filled: true,
+                            fillColor: Colors.amber.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
@@ -131,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 30),
 
-                        // ✅ Login Button
+                        // 🟡 Login Button
                         _loading
                             ? const CircularProgressIndicator()
                             : SizedBox(
@@ -140,29 +161,31 @@ class _LoginPageState extends State<LoginPage> {
                                 child: ElevatedButton(
                                   onPressed: _login,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blueAccent,
+                                    backgroundColor: primaryColor,
+                                    foregroundColor: Colors.black,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
+                                    elevation: 4,
                                   ),
                                   child: const Text(
                                     "Login",
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),
                               ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 20),
 
-                        // ✅ Forgot Password Link
+                        // 🔵 Forgot Password
                         TextButton(
                           onPressed: _forgotPassword,
-                          child: const Text(
+                          child: Text(
                             "Forgot Password?",
                             style: TextStyle(
-                              color: Colors.blueAccent,
+                              color: accentColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -170,6 +193,16 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // Small Footer
+              Text(
+                "© 2025 Beezy HRM",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 12,
                 ),
               ),
             ],

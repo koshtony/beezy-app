@@ -9,13 +9,8 @@ class AttendanceController {
     try {
       final response = await _attendanceService.fetchProfile();
 
-      if (response is Map<String, dynamic>) {
-        return response;
-      } else {
-        _showSnack(context, "⚠️ Invalid profile data received.");
-        return null;
-      }
-    } catch (e) {
+      return response;
+        } catch (e) {
       _showSnack(context, "❌ Failed to load profile: $e");
       return null;
     }
@@ -28,7 +23,7 @@ class AttendanceController {
       final response = await _attendanceService.checkIn(locationData);
 
       // ✅ Always convert response to a readable string
-      final String message = response?.toString() ?? "✅ Check-in successful!";
+      final String message = response.toString() ?? "✅ Check-in successful!";
 
       _showSnack(
         context,

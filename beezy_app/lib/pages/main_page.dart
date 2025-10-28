@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import 'attendance_page.dart';
+import 'approval_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -15,8 +16,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   final _pages = [
     const Center(child: Text("Dashboard")),
     const ClockInPage(),
-    const Center(child: Text("Approvals")),
-    const Center(child: Text("Leave")),
+    const ApprovalPage(),
+    const Center(child: Text("Leave Requests")),
     const Center(child: Text("Payroll")),
     const ProfilePage(),
   ];
@@ -56,23 +57,50 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    // 🐝 Colors consistent with login page
+    const beeGreen = Color.fromARGB(255, 8, 218, 85);
+    const beeBlue = Colors.blueAccent;
+    const backgroundColor = Color(0xFFF4F6F8);
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: Text(
           _titles[_index],
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+            fontSize: 14,
+          ),
         ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 4,
-        shadowColor: Colors.blueAccent.withOpacity(0.1),
+        elevation: 3,
         centerTitle: true,
+        shadowColor: beeBlue.withOpacity(0.1),
       ),
 
-      body: FadeTransition(
-        opacity: _animation,
-        child: _pages[_index],
+      body: Stack(
+        children: [
+          // 🐝 Faint bee emoji background
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.center,
+              child: Opacity(
+                opacity: 0.05, // faint and elegant
+                child: const Text(
+                  "🐝",
+                  style: TextStyle(fontSize: 250), // large and subtle
+                ),
+              ),
+            ),
+          ),
+
+          // Page transition animation
+          FadeTransition(
+            opacity: _animation,
+            child: _pages[_index],
+          ),
+        ],
       ),
 
       bottomNavigationBar: Container(
@@ -82,8 +110,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.blueAccent.withOpacity(0.15),
-              blurRadius: 12,
+              color: beeBlue.withOpacity(0.15),
+              blurRadius: 15,
               offset: const Offset(0, 5),
             ),
           ],
@@ -95,18 +123,42 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
             backgroundColor: Colors.white,
             currentIndex: _index,
             onTap: _onTabTapped,
-            selectedItemColor: Colors.blueAccent,
-            unselectedItemColor: Colors.grey,
+            selectedItemColor: beeBlue,
+            unselectedItemColor: Colors.grey.shade500,
             showUnselectedLabels: true,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+            ),
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: "Home"),
-              BottomNavigationBarItem(icon: Icon(Icons.access_time), label: "Clock"),
-              BottomNavigationBarItem(icon: Icon(Icons.verified_rounded), label: "Approvals"),
-              BottomNavigationBarItem(icon: Icon(Icons.beach_access_rounded), label: "Leave"),
-              BottomNavigationBarItem(icon: Icon(Icons.receipt_long_rounded), label: "Payroll"),
-              BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: "Profile"),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard_rounded),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.access_time_rounded),
+                label: "Clock",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.verified_rounded),
+                label: "Approvals",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.beach_access_rounded),
+                label: "Leave",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.receipt_long_rounded),
+                label: "Payroll",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_rounded),
+                label: "Profile",
+              ),
             ],
           ),
         ),

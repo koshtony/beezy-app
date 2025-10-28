@@ -31,15 +31,12 @@ class _ClockInPageState extends State<ClockInPage> {
     _updateTimeEverySecond();
   }
 
-  /// ✅ Update the displayed time every second
   void _updateTimeEverySecond() {
     _currentTime = _formatTime(DateTime.now());
     Future.doWhile(() async {
       await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return false;
-      setState(() {
-        _currentTime = _formatTime(DateTime.now());
-      });
+      setState(() => _currentTime = _formatTime(DateTime.now()));
       return true;
     });
   }
@@ -69,7 +66,8 @@ class _ClockInPageState extends State<ClockInPage> {
         orElse: () => cameras.first,
       );
 
-      _cameraController = CameraController(frontCamera, ResolutionPreset.medium);
+      _cameraController =
+          CameraController(frontCamera, ResolutionPreset.medium);
       await _cameraController!.initialize();
       if (mounted) setState(() {});
     } catch (e) {
@@ -77,7 +75,6 @@ class _ClockInPageState extends State<ClockInPage> {
     }
   }
 
-  /// ✅ Get location safely
   Future<Position?> _getCurrentPosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -99,10 +96,10 @@ class _ClockInPageState extends State<ClockInPage> {
       return null;
     }
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
-  /// ✅ Take photo from camera
   Future<XFile?> _capturePhoto() async {
     try {
       if (_cameraController == null || !_cameraController!.value.isInitialized) {
@@ -118,7 +115,6 @@ class _ClockInPageState extends State<ClockInPage> {
     }
   }
 
-  /// ✅ Perform check-in or check-out
   Future<void> _handleAttendance() async {
     try {
       final position = await _getCurrentPosition();
@@ -133,7 +129,6 @@ class _ClockInPageState extends State<ClockInPage> {
       final info = NetworkInfo();
       final ipAddress = await info.getWifiIP() ?? "Unknown";
 
-      // Decide check-in or check-out
       final action = !_checkedIn ? "checkin" : "checkout";
 
       await _controller.checkIn(context, {
@@ -151,6 +146,8 @@ class _ClockInPageState extends State<ClockInPage> {
           _checkedOut = true;
         }
       });
+
+      _showSnack("✅ $action successful!", success: true);
     } catch (e) {
       _showSnack("⚠️ Action failed: $e");
     }
@@ -160,7 +157,7 @@ class _ClockInPageState extends State<ClockInPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: success ? Colors.green : Colors.redAccent,
+        backgroundColor: success ? const Color(0xFF08DA55) : Colors.redAccent,
       ),
     );
   }
@@ -173,6 +170,10 @@ class _ClockInPageState extends State<ClockInPage> {
 
   @override
   Widget build(BuildContext context) {
+    const beeBlue = Color(0xFF1976D2);
+    const beeGreen = Color(0xFF08DA55);
+    const bgColor = Color(0xFFF8FAFC);
+
     if (_loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -181,101 +182,140 @@ class _ClockInPageState extends State<ClockInPage> {
 
     String buttonLabel;
     Color buttonColor;
-
     if (_checkedIn && !_checkedOut) {
-      buttonLabel = "✅ Already Checked In";
+      buttonLabel = "✅ Checked In\nTap to Check Out";
       buttonColor = Colors.orange;
     } else if (_checkedIn && _checkedOut) {
       buttonLabel = "🏁 Checked Out";
-      buttonColor = Colors.green;
+      buttonColor = beeGreen;
     } else {
       buttonLabel = "🕒 $_currentTime\nTap to Check In";
-      buttonColor = Colors.blue;
+      buttonColor = beeBlue;
     }
 
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text('Attendance Clock'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 3,
+        centerTitle: true,
+       
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // 👇 Station Info Scroll
-            SizedBox(
-              height: 120,
-              child: _stations.isNotEmpty
-                  ? ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _stations.length,
-                      itemBuilder: (context, index) {
-                        final station = _stations[index];
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 3,
-                          margin: const EdgeInsets.only(right: 12),
-                          child: Container(
-                            width: 200,
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  station['name'] ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  station['address'] ?? '',
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '📍 ${station['latitude']}, ${station['longitude']}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  : const Center(child: Text("No stations assigned")),
-            ),
-
-            const Spacer(),
-
-            // 👇 Big Round Dynamic Check-In/Out Button
-            Center(
-              child: ElevatedButton(
-                onPressed:
-                    (_checkedIn && _checkedOut) ? null : _handleAttendance,
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(60),
-                  backgroundColor: buttonColor,
-                  elevation: 10,
-                ),
-                child: Text(
-                  buttonLabel,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
+      body: Stack(
+        children: [
+          // 🐝 Subtle Bee Emoji Background
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.center,
+              child: Opacity(
+                opacity: 0.05,
+                child: const Text("🐝", style: TextStyle(fontSize: 300)),
               ),
             ),
+          ),
 
-            const Spacer(),
-          ],
-        ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // 🏢 Assigned Stations
+                SizedBox(
+                  height: 120,
+                  child: _stations.isNotEmpty
+                      ? ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _stations.length,
+                          itemBuilder: (context, index) {
+                            final station = _stations[index];
+                            return Card(
+                              color: Colors.white,
+                              elevation: 4,
+                              shadowColor: beeBlue.withOpacity(0.15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              margin: const EdgeInsets.only(right: 12),
+                              child: Container(
+                                width: 200,
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      station['name'] ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      station['address'] ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      '📍 ${station['latitude']}, ${station['longitude']}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : const Center(child: Text("No stations assigned")),
+                ),
+
+                const Spacer(),
+
+                // 🕒 Modern Gradient Check-In Button
+                GestureDetector(
+                  onTap: (_checkedIn && _checkedOut) ? null : _handleAttendance,
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [_checkedIn ? beeGreen : beeBlue, beeGreen],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: beeBlue.withOpacity(0.25),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        buttonLabel,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const Spacer(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

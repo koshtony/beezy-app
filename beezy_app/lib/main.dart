@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'controllers/approval_controller.dart';
 import 'pages/login_page.dart';
 
 void main() {
-  runApp(const HRApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ApprovalController()),
+      ],
+      child: const HRApp(),
+    ),
+  );
 }
 
 class HRApp extends StatelessWidget {

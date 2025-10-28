@@ -35,6 +35,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color beezyGold = Color(0xFFFFC107); // Beezy golden yellow
+    const Color softCream = Color(0xFFFFF9E5); // Background cream
+    const Color darkText = Color(0xFF2E2A1E);
+
     if (_loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -50,15 +54,30 @@ class _ProfilePageState extends State<ProfilePage> {
     String? imageUrl = _profile!['image_url'];
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: softCream,
       body: Stack(
         children: [
-          // ----- Gradient Header -----
+          // 🐝 Deemly Bee Background
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Center(
+                child: Text(
+                  "🐝",
+                  style: TextStyle(
+                    fontSize: 200,
+                    color: Colors.black.withOpacity(0.04),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // 🟡 Golden Header Gradient
           Container(
             height: 250,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+                colors: [Color(0xFFFFD54F), Color(0xFFFFECB3)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -68,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
 
-          // ----- Content -----
+          // 🔹 Main Content
           SafeArea(
             child: Column(
               children: [
@@ -76,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                      icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Expanded(
@@ -86,18 +105,19 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: Colors.black87,
                         ),
                       ),
                     ),
                     const SizedBox(width: 48),
                   ],
                 ),
+                const SizedBox(height: 10),
 
-                // ----- Profile Card -----
+                // 🧑 Profile Card
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
                         const SizedBox(height: 40),
@@ -113,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withOpacity(0.08),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -127,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: darkText,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
@@ -139,6 +159,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
+
+                                  // 🧾 Info Cards
                                   _buildInfoCard("Department",
                                       _profile!['department_name']),
                                   _buildInfoCard("Sub Department",
@@ -156,7 +178,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ],
                               ),
                             ),
-                            // ----- Profile Image -----
+
+                            // 🖼️ Profile Image Floating
                             Positioned(
                               top: 0,
                               child: Hero(
@@ -194,21 +217,35 @@ class _ProfilePageState extends State<ProfilePage> {
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.amber.withOpacity(0.2)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: Colors.black87)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2E2A1E),
+            ),
+          ),
           Flexible(
             child: Text(
               value?.toString() ?? '-',
               textAlign: TextAlign.right,
-              style: const TextStyle(color: Colors.black54, fontSize: 15),
+              style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 15,
+              ),
             ),
           ),
         ],
