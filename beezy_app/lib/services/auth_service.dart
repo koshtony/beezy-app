@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  // ⚙️ Update with your actual backend IP and port
   final String baseUrl = 'http://192.168.1.2:5000/users/';
 
   Future<Map<String, dynamic>> login(String username, String password) async {
@@ -15,11 +14,19 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
-      // ✅ Save JWT tokens locally
       final prefs = await SharedPreferences.getInstance();
+
+      // ✅ Save tokens
       await prefs.setString('access', data['access']);
       await prefs.setString('refresh', data['refresh']);
+
+      // ✅ Save employee info if returned
+      if (data['user'] != null) {
+        await prefs.setInt('employeeId', data['user']['id']);
+        await prefs.setString('employeeCode', data['user']['employee_code'] ?? '');
+        await prefs.setString('employeeName',
+            "${data['user']['first_name'] ?? ''} ${data['user']['last_name'] ?? ''}".trim());
+      }
 
       return data;
     } else if (response.statusCode == 403) {
@@ -29,5 +36,20 @@ class AuthService {
     } else {
       throw Exception('Login failed. Please try again later.');
     }
+  }
+
+  static Future<String?> getAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('access');
+  }
+
+  static Future<int?> getEmployeeId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('employeeId');
+  }
+
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 }

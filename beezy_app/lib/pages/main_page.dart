@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import 'attendance_page.dart';
 import 'approval_page.dart';
+import 'leave_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -17,7 +18,7 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     const Center(child: Text("Dashboard")),
     const ClockInPage(),
     const ApprovalPage(),
-    const Center(child: Text("Leave Requests")),
+    const LeavePage(),
     const Center(child: Text("Payroll")),
     const ProfilePage(),
   ];
