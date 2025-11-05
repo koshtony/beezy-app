@@ -1,9 +1,9 @@
 class Leave {
   final int? id;
-  final int leaveTypeId; // FK to LeaveType
+  final int leaveTypeId;
   final String startDate;
   final String endDate;
-  final String dayType; // full or half
+  final String dayType;
   final double totalDays;
   final String reason;
   final String? status;
@@ -11,6 +11,7 @@ class Leave {
   final String? employeeCode;
   final String? leaveTypeName;
   final String? attachmentUrl;
+  final List<Map<String, dynamic>> approvalRecords;
 
   Leave({
     this.id,
@@ -25,36 +26,33 @@ class Leave {
     this.employeeCode,
     this.leaveTypeName,
     this.attachmentUrl,
+    this.approvalRecords = const [],
   });
 
-  /// Convert JSON → Leave
   factory Leave.fromJson(Map<String, dynamic> json) {
     return Leave(
-      id: json['id'],
-      leaveTypeId: json['leave_type'] is Map
-          ? json['leave_type']['id']
-          : json['leave_type'] ?? 0,
-      leaveTypeName: json['leave_type'] is Map
-          ? json['leave_type']['name']
-          : json['leave_type_name'],
+      id: json['id'] ?? 0,
+      leaveTypeId: json['leave_type'] ?? 0,
+      leaveTypeName: json['leave_type_name'] ?? '',
       startDate: json['start_date'] ?? '',
       endDate: json['end_date'] ?? '',
       dayType: json['day_type'] ?? 'full',
-      totalDays: (json['total_days'] ?? 0).toDouble(),
+      totalDays: (json['total_days'] is num)
+          ? (json['total_days'] as num).toDouble()
+          : double.tryParse(json['total_days']?.toString() ?? '0') ?? 0.0,
       reason: json['reason'] ?? '',
       status: json['status'] ?? 'pending',
-      employeeCode:
-          json['employee_code'] ?? json['employee']?['employee_code'],
-      employeeName: json['employee_name'] ??
-          "${json['employee']?['first_name'] ?? ''} ${json['employee']?['last_name'] ?? ''}".trim(),
-      attachmentUrl: json['attachment'] ?? '',
+      employeeCode: json['employee_code']?.toString(),
+      employeeName: json['employee_name']?.toString() ?? '',
+      attachmentUrl: json['attachment_url'] ?? json['attachment'] ?? '',
+      approvalRecords: (json['approval_records'] is List)
+          ? List<Map<String, dynamic>>.from(json['approval_records'])
+          : [],
     );
   }
 
-  /// ✅ Convert Leave → JSON for POST (includes employee)
   Map<String, dynamic> toJson() {
     return {
-      'employee': employeeCode, // 👈 added this line
       'leave_type': leaveTypeId,
       'start_date': startDate,
       'end_date': endDate,

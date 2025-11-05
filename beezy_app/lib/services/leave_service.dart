@@ -32,21 +32,39 @@ class LeaveService {
 
   // 🧾 Get all pending leaves that require approval
   Future<List<Leave>> getApprovals() async {
-    final token = await _getToken();
-    final res = await http.get(
-      Uri.parse("${baseUrl}requests/to_approve/"),
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
-    );
+  final token = await _getToken();
+  final res = await http.get(
+    Uri.parse("${baseUrl}requests/to-approve/"),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Accept": "application/json",
+    },
+  );
 
-    if (res.statusCode == 200) {
-      final data = jsonDecode(res.body) as List;
-      return data.map((e) => Leave.fromJson(e)).toList();
+  print("🟡 Raw approvals response: ${res.statusCode} -> ${res.body}");
+
+  if (res.statusCode == 200) {
+  try {
+    final decoded = jsonDecode(res.body);
+
+    if (decoded is List) {
+      return decoded.map((e) => Leave.fromJson(e)).toList();
+    } else if (decoded is Map && decoded['results'] is List) {
+      return (decoded['results'] as List)
+          .map((e) => Leave.fromJson(e))
+          .toList();
+    } else {
+      print("⚠️ Unexpected response structure: $decoded");
+      throw Exception("Unexpected data format from server.");
     }
-    throw Exception("Failed to load approvals: ${res.body}");
+  } catch (e) {
+    print("❌ JSON parse error: $e");
+    throw Exception("Failed to parse approvals response.");
   }
+}
+
+throw Exception("Failed to load approvals: ${res.body}");
+}
 
   // 📝 Submit a new leave request
   Future<void> submitLeave(Leave leave) async {
