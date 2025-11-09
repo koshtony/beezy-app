@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AttendanceService {
-  final String baseUrl = 'http://192.168.1.2:5000'; // Django backend
+  final String baseUrl = 'http://192.168.1.3:5000'; // Django backend
 
   Future<Map<String, dynamic>> fetchProfile() async {
     final prefs = await SharedPreferences.getInstance();

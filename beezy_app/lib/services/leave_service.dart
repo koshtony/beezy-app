@@ -5,7 +5,7 @@ import 'auth_service.dart';
 
 class LeaveService {
   // ✅ Point to Django's leave routes (matches urls.py)
-  final String baseUrl = "http://192.168.1.2:5000/leave/leave/";
+  final String baseUrl = "http://192.168.1.3:5000/leave/leave/";
 
   // 🔑 Helper to fetch access token
   Future<String?> _getToken() async {

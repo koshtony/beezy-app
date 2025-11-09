@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../controllers/approval_controller.dart';
 import '../models/approval_model.dart';
 
@@ -14,7 +13,6 @@ class ApprovalPage extends StatefulWidget {
 class _ApprovalPageState extends State<ApprovalPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  String? token;
 
   @override
   void initState() {
@@ -24,11 +22,9 @@ class _ApprovalPageState extends State<ApprovalPage>
   }
 
   Future<void> _loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString("token");
-    if (token != null && mounted) {
+    if (mounted) {
       await Provider.of<ApprovalController>(context, listen: false)
-          .loadData(token!);
+          .refreshAll();
     }
   }
 
@@ -41,12 +37,12 @@ class _ApprovalPageState extends State<ApprovalPage>
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
       case "approved":
-        return const Color(0xFF08DA55); // Beezy Green
+        return const Color(0xFF08DA55);
       case "rejected":
         return const Color(0xFFD32F2F);
       case "pending":
       default:
-        return const Color(0xFF1976D2); // Beezy Blue
+        return const Color(0xFF1976D2);
     }
   }
 
@@ -64,15 +60,15 @@ class _ApprovalPageState extends State<ApprovalPage>
             backgroundColor: Colors.white,
             elevation: 2,
             centerTitle: true,
-            
-            
+            title: const Text(
+              "Approvals",
+              style: TextStyle(color: Colors.black87),
+            ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(48),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey.shade200),
-                  ),
+                  border: Border(top: BorderSide(color: Colors.grey.shade200)),
                 ),
                 child: TabBar(
                   controller: _tabController,
@@ -94,36 +90,24 @@ class _ApprovalPageState extends State<ApprovalPage>
               ),
             ),
           ),
-
           body: Stack(
             children: [
-              // 🐝 Soft Bee Emoji background
               Positioned.fill(
                 child: Align(
                   alignment: Alignment.center,
                   child: Opacity(
                     opacity: 0.05,
-                    child: const Text(
-                      "🐝",
-                      style: TextStyle(fontSize: 250),
-                    ),
+                    child: const Text("🐝", style: TextStyle(fontSize: 250)),
                   ),
                 ),
               ),
-
-              controller.loading
+              controller.loadingApprovals
                   ? const Center(child: CircularProgressIndicator())
                   : TabBarView(
                       controller: _tabController,
                       children: [
-                        _buildList(
-                          controller.initiated,
-                          "You haven't initiated any approvals yet.",
-                        ),
-                        _buildList(
-                          controller.toApprove,
-                          "No approvals pending for you.",
-                        ),
+                        _buildList(controller.initiated, "You haven't initiated any approvals yet.", controller),
+                        _buildList(controller.toApprove, "No approvals pending for you.", controller),
                       ],
                     ),
             ],
@@ -133,7 +117,7 @@ class _ApprovalPageState extends State<ApprovalPage>
     );
   }
 
-  Widget _buildList(List<ApprovalRecord> approvals, String emptyMessage) {
+  Widget _buildList(List<ApprovalRecord> approvals, String emptyMessage, ApprovalController controller) {
     if (approvals.isEmpty) {
       return Center(
         child: Padding(
@@ -141,18 +125,9 @@ class _ApprovalPageState extends State<ApprovalPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.mark_email_unread_outlined,
-                  size: 72, color: Colors.grey.shade400),
+              Icon(Icons.mark_email_unread_outlined, size: 72, color: Colors.grey.shade400),
               const SizedBox(height: 16),
-              Text(
-                emptyMessage,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(emptyMessage, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600, fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
         ),
@@ -160,12 +135,7 @@ class _ApprovalPageState extends State<ApprovalPage>
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        if (token != null) {
-          await Provider.of<ApprovalController>(context, listen: false)
-              .loadData(token!);
-        }
-      },
+      onRefresh: controller.loadApprovals,
       child: ListView.separated(
         padding: const EdgeInsets.all(12),
         itemCount: approvals.length,
@@ -176,74 +146,53 @@ class _ApprovalPageState extends State<ApprovalPage>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 6, offset: const Offset(0, 3))],
             ),
             child: ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               leading: CircleAvatar(
                 radius: 25,
                 backgroundColor: _statusColor(item.status).withOpacity(0.15),
-                child: Icon(
-                  Icons.assignment_turned_in_rounded,
-                  color: _statusColor(item.status),
-                ),
+                child: Icon(Icons.assignment_turned_in_rounded, color: _statusColor(item.status)),
               ),
-              title: Text(
-                item.approvalType ?? "Unknown Type",
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Chip(
-                      label: Text(
-                        item.status,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      backgroundColor: _statusColor(item.status),
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
+              title: Text(item.approvalType ?? "Unknown Type", style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Chip(
+                    label: Text(item.status, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                    backgroundColor: _statusColor(item.status),
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                  ),
+                  if (item.comment != null && item.comment!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text("Comment: ${item.comment}", style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
                     ),
-                    if (item.comment != null && item.comment!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          "Comment: ${item.comment}",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
+                  const SizedBox(height: 4),
+                  Text("Level: ${item.level ?? '-'}", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                  const SizedBox(height: 6),
+                  if (item.status.toLowerCase() == "pending")
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => _showApprovalDialog(controller, item, true),
+                          icon: const Icon(Icons.check_rounded),
+                          label: const Text("Approve"),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF08DA55)),
                         ),
-                      ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "Level: ${item.level ?? '-'}",
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                      ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: () => _showApprovalDialog(controller, item, false),
+                          icon: const Icon(Icons.close_rounded),
+                          label: const Text("Reject"),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F)),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
           );
@@ -251,15 +200,38 @@ class _ApprovalPageState extends State<ApprovalPage>
       ),
     );
   }
+
+  void _showApprovalDialog(ApprovalController controller, ApprovalRecord record, bool isApprove) {
+    final TextEditingController commentController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(isApprove ? "Approve Request" : "Reject Request"),
+        content: TextField(controller: commentController, decoration: const InputDecoration(hintText: "Add a comment (optional)"), maxLines: 3),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              if (isApprove) {
+                await controller.approve(record.id, comment: commentController.text);
+              } else {
+                await controller.reject(record.id, comment: commentController.text);
+              }
+            },
+            child: Text(isApprove ? "Approve" : "Reject"),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-/// 🌈 Custom Gradient Tab Indicator
+// GradientTabIndicator class remains unchanged
 class GradientTabIndicator extends Decoration {
   final LinearGradient gradient;
   final double thickness;
-
   const GradientTabIndicator({required this.gradient, this.thickness = 3});
-
   @override
   BoxPainter createBoxPainter([VoidCallback? onChanged]) {
     return _GradientPainter(gradient: gradient, thickness: thickness);
@@ -269,16 +241,11 @@ class GradientTabIndicator extends Decoration {
 class _GradientPainter extends BoxPainter {
   final LinearGradient gradient;
   final double thickness;
-
   _GradientPainter({required this.gradient, this.thickness = 3});
-
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration cfg) {
-    final rect = Offset(offset.dx, cfg.size!.height - thickness) &
-        Size(cfg.size!.width, thickness);
-    final paint = Paint()
-      ..shader = gradient.createShader(rect)
-      ..style = PaintingStyle.fill;
+    final rect = Offset(offset.dx, cfg.size!.height - thickness) & Size(cfg.size!.width, thickness);
+    final paint = Paint()..shader = gradient.createShader(rect)..style = PaintingStyle.fill;
     canvas.drawRect(rect, paint);
   }
 }
